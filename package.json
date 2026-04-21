@@ -1,0 +1,7 @@
+{
+  "name": "node-driver-security-poc",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": { "test": "echo no tests" }
+}

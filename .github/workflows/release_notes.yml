@@ -1,0 +1,70 @@
+# Replica of mongodb/node-mongodb-native .github/workflows/release_notes.yml
+# Same structure, same pwn-request pattern, for researcher-owned PoC only.
+name: release_notes
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release_notes:
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      github.event.comment.body == 'run release_notes'
+    runs-on: ubuntu-latest
+    steps:
+      - name: check if triggering_actor is allowed
+        # NOTE: it will also change if someone re-runs an old job
+        run: |
+          if ! [[ "${{ github.triggering_actor }}" =~ ^(gn00295120)$ ]]; then
+            echo "Triggering actor '${{ github.triggering_actor }}' is not allowed."
+            exit 1
+          fi
+          echo "Triggering actor '${{ github.triggering_actor }}' authorised."
+
+      - name: debug actor state
+        run: |
+          echo "github.actor=${{ github.actor }}"
+          echo "github.triggering_actor=${{ github.triggering_actor }}"
+          echo "github.event.sender.login=${{ github.event.sender.login }}"
+          echo "github.event.comment.user.login=${{ github.event.comment.user.login }}"
+
+      - name: Get PR branch ref
+        id: pr_ref
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.issue.number,
+            });
+            core.setOutput('sha', pr.data.head.sha);
+            core.setOutput('ref', `refs/pull/${context.payload.issue.number}/head`);
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr_ref.outputs.ref }}
+
+      - name: Install Node and dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: npm install (replicates mongodb-labs/drivers-github-tools/node/setup)
+        # This is the exact behaviour of the mongodb-labs action at issue:
+        # it runs `npm install` without --ignore-scripts on fork code.
+        run: npm install
+
+      - name: Run release-notes helper scripts
+        run: |
+          node .github/scripts/pr_list.mjs
+          node .github/scripts/highlights.mjs
+          node .github/scripts/release_notes.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
