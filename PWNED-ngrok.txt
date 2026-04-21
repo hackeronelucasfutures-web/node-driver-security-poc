@@ -1,0 +1,5 @@
+ATTACKER-CONTROLLED WRITE — H1 #3679812 PoC
+Timestamp: 2026-04-21T09:54:04.042Z
+Token prefix: ghs_ErJy...
+Repo: hackeronelucasfutures-web/node-driver-security-poc
+Run: 24715954535
